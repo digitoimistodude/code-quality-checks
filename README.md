@@ -4,6 +4,8 @@
 
 Dude's comprehensive code quality definitions and pre-commit hooks for WordPress projects.
 
+<img width="706" height="688" alt="image" src="https://github.com/user-attachments/assets/1f5495f2-3745-4e6f-827b-460272a4ad96" />
+
 ## Features
 
 - **Pre-commit hooks**: Comprehensive code quality checks before commits
@@ -12,46 +14,6 @@ Dude's comprehensive code quality definitions and pre-commit hooks for WordPress
 - **WordPress version checks**: Ensures latest WordPress core
 - **Dependency validation**: Composer and npm dependency checks
 - **Conflict detection**: Merge conflict and scissor mark detection
-
-## Installation
-
-### Method 1: Copy from this repository
-
-1. **Copy the configuration files to your project:**
-   ```bash
-   cp -r .husky /path/to/your/project/
-   ```
-
-2. **Add Husky to your project's package.json:**
-   ```bash
-   cd /path/to/your/project
-   npm install --save-dev husky
-   ```
-
-3. **Initialize Husky:**
-   ```bash
-   npx husky install
-   ```
-
-4. **Make hooks executable:**
-   ```bash
-   chmod +x .husky/pre-commit
-   chmod +x .husky/commit-msg
-   ```
-
-### Method 2: Git submodule (recommended for updates)
-
-1. **Add as submodule:**
-   ```bash
-   git submodule add https://github.com/your-org/code-quality-checks.git .code-quality
-   ```
-
-2. **Copy hooks to .husky:**
-   ```bash
-   cp -r .code-quality/.husky .
-   ```
-
-3. **Follow steps 2-4 from Method 1**
 
 ## Project requirements
 
@@ -67,10 +29,12 @@ Your project must have these files for the hooks to work:
 - `package.json` - Node.js dependencies (with Gulp)
 
 ### Theme-specific requirements
+
 - `content/themes/*/style.css` - WordPress theme headers
 - `content/themes/*/.stylelintrc*` - Stylelint configuration per theme
 
 ### Example commands to create required files
+
 ```bash
 # Create Node version file
 node --version > .nvmrc
@@ -124,6 +88,7 @@ Your `phpcs.xml` should follow this pattern:
 Once installed, the hooks run automatically:
 
 ### Pre-commit hook
+
 Runs on `git commit` and checks:
 - Required configuration files
 - CHANGELOG.md format and date
@@ -135,6 +100,7 @@ Runs on `git commit` and checks:
 - Stylelint violations on SCSS files
 
 ### Bypassing hooks (not recommended)
+
 ```bash
 git commit --no-verify -m "Emergency commit"
 ```
@@ -142,17 +108,20 @@ git commit --no-verify -m "Emergency commit"
 ## Troubleshooting
 
 ### Hooks not running
+
 1. Check if `.git/hooks/pre-commit` exists and points to Husky
 2. Ensure hooks are executable: `chmod +x .husky/*`
 3. Verify Husky installation: `npx husky install`
 
 ### Common errors
+
 - **"phpcs.xml not found"**: Create PHP CodeSniffer configuration
 - **"gulpfile.js missing"**: Add Gulp build configuration
 - **"CHANGELOG.md date must be today"**: Update changelog date to current date
 - **"WordPress version outdated"**: Update WordPress in composer.json
 
 ### Getting help
+
 The hooks provide detailed error messages with suggested fixes. Look for:
 - 🔍 File checking messages
 - ❌ Failure indicators with explanations  
