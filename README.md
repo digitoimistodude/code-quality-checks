@@ -76,10 +76,10 @@ Your `phpcs.xml` should follow this pattern:
 ```xml
 <?xml version="1.0"?>
 <ruleset name="Project">
-    <file>.</file>
-    <exclude-pattern>vendor/*</exclude-pattern>
-    <exclude-pattern>node_modules/*</exclude-pattern>
-    <rule ref="WordPress"/>
+  <file>.</file>
+  <exclude-pattern>vendor/*</exclude-pattern>
+  <exclude-pattern>node_modules/*</exclude-pattern>
+  <rule ref="WordPress"/>
 </ruleset>
 ```
 
