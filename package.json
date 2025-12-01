@@ -1,21 +1,27 @@
 {
-  "name": "code-quality-checks",
-  "version": "1.0.1",
-  "description": "Code quality definitions and Husky pre-commit hooks for Dude projects",
-  "private": true,
-  "scripts": {
-    "prepare": "husky install",
-    "lint:styles": "stylelint \"**/*.scss\" --config .stylelintrc.json",
-    "lint:styles:fix": "stylelint \"**/*.scss\" --config .stylelintrc.json --fix"
+  "name": "@digitoimistodude/code-quality-checks",
+  "version": "2.0.0",
+  "description": "Code quality definitions and Husky pre-commit hooks for Dude WordPress projects",
+  "main": "index.js",
+  "files": [
+    ".husky/pre-commit",
+    ".husky/pre-commit-config",
+    ".husky/commit-msg",
+    "index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digitoimistodude/code-quality-checks.git"
   },
-  "devDependencies": {
-    "gulp": "^4.0.2",
-    "husky": "^8.0.3",
-    "stylelint": "^15.10.3",
-    "stylelint-config-standard-scss": "^11.0.0"
+  "bugs": {
+    "url": "https://github.com/digitoimistodude/code-quality-checks/issues"
   },
+  "homepage": "https://github.com/digitoimistodude/code-quality-checks#readme",
   "engines": {
     "node": ">=18.0.0"
+  },
+  "peerDependencies": {
+    "husky": "^9.1.7"
   },
   "keywords": [
     "code-quality",
@@ -24,8 +30,12 @@
     "php",
     "wordpress",
     "stylelint",
-    "phpcs"
+    "phpcs",
+    "dude"
   ],
-  "author": "Dude",
-  "license": "MIT"
+  "author": "Digitoimisto Dude Oy <koodarit@dude.fi>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
 }
