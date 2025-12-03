@@ -1,4 +1,4 @@
-### 2.0.0: 2025-12-01
+### 2.0.0: 2025-12-03
 
 * Restructure as npm package @digitoimistodude/code-quality-checks
 * Add context detection for standalone theme vs Bedrock project
@@ -9,7 +9,7 @@
 * Standalone mode: Theme-only checks (stylelint, dependencies, basic validations)
 * Add scissor marks detection to both contexts
 * Improve stylelint config detection for both contexts
-* Add postinstall script for automatic hook installation
+* Add flexible config loading (local project config or package default)
 * Ref: DEV-177, DEV-373, DEV-623
 
 ### 1.0.1: 2025-08-08
