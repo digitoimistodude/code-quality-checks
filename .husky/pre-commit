@@ -2,7 +2,7 @@
 # Ref: DEV-177, DEV-373, DEV-623
 
 # Version:
-VERSION="2.0.0 (2025-12-01)"
+VERSION="2.0.1 (2025-12-03)"
 
 # Load configuration
 # First check for local project config, then fall back to package default
@@ -19,11 +19,11 @@ else
   CHECK_CHANGED_ONLY=true
 fi
 
-# Detect context: standalone theme or Bedrock project
-# Bedrock projects have content/themes/ directory structure
+# Detect context: standalone theme or dudestack project
+# Dudestack projects have content/themes/ directory structure
 detect_context() {
   if [ -d "content/themes" ] && [ -f "composer.json" ]; then
-    echo "bedrock"
+    echo "dudestack"
   else
     echo "standalone"
   fi
@@ -112,10 +112,10 @@ print_logo
 
 echo ""
 echo "${MINT}Dude's husky quality control config v. ${VERSION}${NC}"
-if [ "$CONTEXT" = "bedrock" ]; then
-  echo "${MINT}${GEAR}  Running pre-commit checks (Bedrock project)...${NC}"
+if [ "$CONTEXT" = "dudestack" ]; then
+  echo "${MINT}${GEAR}  Running pre-commit checks (dudestack project)...${NC}"
 else
-  echo "${MINT}${GEAR}  Running pre-commit checks (Standalone theme)...${NC}"
+  echo "${MINT}${GEAR}  Running pre-commit checks (standalone theme)...${NC}"
 fi
 echo ""
 
@@ -143,8 +143,8 @@ if [ ! -f "phpcs.xml" ]; then
 fi
 echo "${GREEN}${CHECK} OK${NC}"
 
-# Bedrock-specific: Check that stylelintrc is NOT in root (should be in themes)
-if [ "$CONTEXT" = "bedrock" ]; then
+# Dudestack-specific: Check that stylelintrc is NOT in root (should be in themes)
+if [ "$CONTEXT" = "dudestack" ]; then
   printf "  ${ARROW} Checking for .stylelintrc in root (should not exist)... "
   if [ -f ".stylelintrc" ] || [ -f ".stylelintrc.json" ] || [ -f ".stylelintrc.js" ] || [ -f ".stylelintrc.yml" ]; then
     echo "${RED}${CROSS} FAILED${NC}"
@@ -169,25 +169,46 @@ if [ ! -d ".github/workflows" ]; then
 fi
 echo "${GREEN}${CHECK} OK${NC}"
 
-printf "  ${ARROW} Checking for gulpfile.js... "
-if [ ! -f "gulpfile.js" ]; then
-  echo "${RED}${CROSS} FAILED${NC}"
-  echo "    ${RED}gulpfile.js is missing from root directory${NC}"
-  echo "    ${YELLOW}Please ensure Gulp is properly set up${NC}"
-  exit 1
-fi
-echo "${GREEN}${CHECK} OK${NC}"
+# Check for gulpfile.js - location depends on context
+if [ "$CONTEXT" = "dudestack" ]; then
+  # In dudestack, gulpfile.js is in themes
+  printf "  ${ARROW} Checking for gulpfile.js in themes... "
+  gulpfile_found=false
+  for theme_dir in content/themes/*/; do
+    if [ -f "${theme_dir}gulpfile.js" ]; then
+      gulpfile_found=true
+      break
+    fi
+  done
+  if [ "$gulpfile_found" = false ]; then
+    echo "${RED}${CROSS} FAILED${NC}"
+    echo "    ${RED}gulpfile.js is missing from theme directories${NC}"
+    echo "    ${YELLOW}Please ensure Gulp is properly set up in your theme${NC}"
+    exit 1
+  fi
+  echo "${GREEN}${CHECK} OK${NC}"
+else
+  # In standalone theme, gulpfile.js is in root
+  printf "  ${ARROW} Checking for gulpfile.js... "
+  if [ ! -f "gulpfile.js" ]; then
+    echo "${RED}${CROSS} FAILED${NC}"
+    echo "    ${RED}gulpfile.js is missing from root directory${NC}"
+    echo "    ${YELLOW}Please ensure Gulp is properly set up${NC}"
+    exit 1
+  fi
+  echo "${GREEN}${CHECK} OK${NC}"
 
-printf "  ${ARROW} Checking for gulp in package.json... "
-if [ -f "package.json" ] && ! npm list gulp >/dev/null 2>&1; then
-  echo "${RED}${CROSS} FAILED${NC}"
-  echo "    ${RED}Gulp is not installed${NC}"
-  echo "    ${YELLOW}Please install Gulp:${NC}"
-  echo "    ${BLUE}nvm use${NC}"
-  echo "    ${BLUE}npm install gulp --save-dev${NC}"
-  exit 1
+  printf "  ${ARROW} Checking for gulp in package.json... "
+  if [ -f "package.json" ] && ! npm list gulp >/dev/null 2>&1; then
+    echo "${RED}${CROSS} FAILED${NC}"
+    echo "    ${RED}Gulp is not installed${NC}"
+    echo "    ${YELLOW}Please install Gulp:${NC}"
+    echo "    ${BLUE}nvm use${NC}"
+    echo "    ${BLUE}npm install gulp --save-dev${NC}"
+    exit 1
+  fi
+  echo "${GREEN}${CHECK} OK${NC}"
 fi
-echo "${GREEN}${CHECK} OK${NC}"
 
 printf "  ${ARROW} Checking for root CHANGELOG.md... "
 if [ ! -f "CHANGELOG.md" ]; then
@@ -199,8 +220,8 @@ if [ ! -f "CHANGELOG.md" ]; then
 fi
 echo "${GREEN}${CHECK} OK${NC}"
 
-# Bedrock-specific: Check CHANGELOG.md format and freshness
-if [ "$CONTEXT" = "bedrock" ]; then
+# Dudestack-specific: Check CHANGELOG.md format and freshness
+if [ "$CONTEXT" = "dudestack" ]; then
   printf "  ${ARROW} Checking CHANGELOG.md format and freshness... "
   # Check CHANGELOG.md format and date
   if [ -f "CHANGELOG.md" ]; then
@@ -355,8 +376,8 @@ if [ "$CONTEXT" = "bedrock" ]; then
   done
 fi
 
-# Bedrock-specific: Check WordPress version
-if [ "$CONTEXT" = "bedrock" ]; then
+# Dudestack-specific: Check WordPress version
+if [ "$CONTEXT" = "dudestack" ]; then
   echo ""
   # Check WordPress version
   echo "${CYAN}${PACKAGE} Checking WordPress version...${NC}"
@@ -401,8 +422,8 @@ echo ""
 # Check if dependencies are up to date
 echo "${CYAN}${PACKAGE} Checking dependencies...${NC}"
 
-# Bedrock-specific: Check root composer.json
-if [ "$CONTEXT" = "bedrock" ] && [ -f "composer.json" ]; then
+# Dudestack-specific: Check root composer.json
+if [ "$CONTEXT" = "dudestack" ] && [ -f "composer.json" ]; then
   printf "  ${ARROW} Checking root composer dependencies... "
   if [ ! -f "composer.lock" ]; then
     echo "${RED}${CROSS} FAILED${NC}"
@@ -451,8 +472,8 @@ if [ -f "package.json" ]; then
   echo "${GREEN}${CHECK} OK${NC}"
 fi
 
-# Bedrock-specific: Check all themes with package.json
-if [ "$CONTEXT" = "bedrock" ] && [ -d "content/themes" ]; then
+# Dudestack-specific: Check all themes with package.json
+if [ "$CONTEXT" = "dudestack" ] && [ -d "content/themes" ]; then
   for theme_dir in content/themes/*/; do
     if [ -f "${theme_dir}package.json" ]; then
       theme_name=$(basename "$theme_dir")
@@ -594,7 +615,7 @@ if [ -n "$scss_files" ]; then
 
   # Find stylelint config
   stylelint_config=""
-  if [ "$CONTEXT" = "bedrock" ]; then
+  if [ "$CONTEXT" = "dudestack" ]; then
     # Find stylelint config in theme directories
     for theme_dir in content/themes/*/; do
       if [ -f "${theme_dir}.stylelintrc" ]; then
@@ -680,7 +701,7 @@ if [ "$CHECK_CHANGED_ONLY" = "true" ]; then
 else
   # Check entire codebase (original behavior)
   printf "  ${ARROW} Checking PHP 8.3 compatibility on entire codebase... "
-  if [ "$CONTEXT" = "bedrock" ]; then
+  if [ "$CONTEXT" = "dudestack" ]; then
     php_syntax_output=$(find -L . -name '*.php' -not -path "./vendor/*" -not -path "./node_modules/*" -not -path "./src/*" -not -path "./js/*" -not -path "./css/*" -not -path "./sass/*" -not -path "./plugin-update-checker/*" -not -path "./content/themes/*" -not -path "./content/plugins/*" -not -path "./content/uploads/*" -not -path "./content/languages/*" -not -path "./content-mu-plugins/*" -not -path "./media/*" -not -path "./wp/*" -exec php -l {} \; 2>&1)
   else
     php_syntax_output=$(find -L . -name '*.php' -not -path "./vendor/*" -not -path "./node_modules/*" -exec php -l {} \; 2>&1)
@@ -735,8 +756,8 @@ else
 fi
 
 
-# Bedrock-specific: Check PHP files with PHPCS on entire codebase
-if [ "$CONTEXT" = "bedrock" ] && [ -f "phpcs.xml" ] && [ -f "./vendor/bin/phpcs" ]; then
+# Dudestack-specific: Check PHP files with PHPCS on entire codebase
+if [ "$CONTEXT" = "dudestack" ] && [ -f "phpcs.xml" ] && [ -f "./vendor/bin/phpcs" ]; then
   echo "  ${ARROW} Running PHP CodeSniffer on entire codebase..."
   # Use the same pattern as your GitHub Actions workflow
   if ./vendor/bin/phpcs -p . --extensions=php --ignore=vendor,content/themes,content/plugins,content/uploads,node_modules,src,js,css,sass,plugin-update-checker,wp,mu-plugins/air-blocks-acf-example-data,content/languages,scripts/Roots/Bedrock/Installer.php,index.php,content/mu-plugins --standard=phpcs.xml; then

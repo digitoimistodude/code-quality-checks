@@ -1,11 +1,17 @@
+### 2.0.1: 2025-12-03
+
+* Fix gulpfile.js check for dudestack projects (check in themes, not root)
+* Rename "bedrock" context to "dudestack" for clarity
+* Ref: DEV-177
+
 ### 2.0.0: 2025-12-03
 
 * Restructure as npm package @digitoimistodude/code-quality-checks
-* Add context detection for standalone theme vs Bedrock project
+* Add context detection for standalone theme vs dudestack project
 * Merge improvements from air-light husky configuration
 * Convert all scripts to 2-space indentation
 * Add automatic context-aware checks
-* Bedrock mode: Full project checks (composer, WP version, multi-theme, CHANGELOG date validation)
+* Dudestack mode: Full project checks (composer, WP version, multi-theme, CHANGELOG date validation)
 * Standalone mode: Theme-only checks (stylelint, dependencies, basic validations)
 * Add scissor marks detection to both contexts
 * Improve stylelint config detection for both contexts
