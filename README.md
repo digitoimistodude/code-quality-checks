@@ -1,6 +1,6 @@
 # Code quality checks
 
-[![husky](https://img.shields.io/badge/husky-a8b1ff?style=for-the-badge)](#) ![Version](https://img.shields.io/badge/version-2.0.0-blue?style=for-the-badge) [![npm](https://img.shields.io/npm/v/@digitoimistodude/code-quality-checks?style=for-the-badge)](https://www.npmjs.com/package/@digitoimistodude/code-quality-checks)
+[![husky](https://img.shields.io/badge/husky-a8b1ff?style=for-the-badge)](#) [![npm](https://img.shields.io/npm/v/@digitoimistodude/code-quality-checks?style=for-the-badge)](https://www.npmjs.com/package/@digitoimistodude/code-quality-checks)
 
 Dude's comprehensive code quality definitions and pre-commit hooks for WordPress projects.
 
