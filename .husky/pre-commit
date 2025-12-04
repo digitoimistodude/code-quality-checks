@@ -2,7 +2,7 @@
 # Ref: DEV-177, DEV-373, DEV-623
 
 # Version:
-VERSION="2.0.1 (2025-12-03)"
+VERSION="2.0.2 (2025-12-04)"
 
 # Load configuration
 # First check for local project config, then fall back to package default
@@ -172,21 +172,25 @@ echo "${GREEN}${CHECK} OK${NC}"
 # Check for gulpfile.js - location depends on context
 if [ "$CONTEXT" = "dudestack" ]; then
   # In dudestack, gulpfile.js is in themes
-  printf "  ${ARROW} Checking for gulpfile.js in themes... "
-  gulpfile_found=false
-  for theme_dir in content/themes/*/; do
-    if [ -f "${theme_dir}gulpfile.js" ]; then
-      gulpfile_found=true
-      break
+  # Skip check if no themes exist yet (fresh dudestack template)
+  theme_count=$(find content/themes -maxdepth 1 -mindepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$theme_count" -gt 0 ]; then
+    printf "  ${ARROW} Checking for gulpfile.js in themes... "
+    gulpfile_found=false
+    for theme_dir in content/themes/*/; do
+      if [ -f "${theme_dir}gulpfile.js" ]; then
+        gulpfile_found=true
+        break
+      fi
+    done
+    if [ "$gulpfile_found" = false ]; then
+      echo "${RED}${CROSS} FAILED${NC}"
+      echo "    ${RED}gulpfile.js is missing from theme directories${NC}"
+      echo "    ${YELLOW}Please ensure Gulp is properly set up in your theme${NC}"
+      exit 1
     fi
-  done
-  if [ "$gulpfile_found" = false ]; then
-    echo "${RED}${CROSS} FAILED${NC}"
-    echo "    ${RED}gulpfile.js is missing from theme directories${NC}"
-    echo "    ${YELLOW}Please ensure Gulp is properly set up in your theme${NC}"
-    exit 1
+    echo "${GREEN}${CHECK} OK${NC}"
   fi
-  echo "${GREEN}${CHECK} OK${NC}"
 else
   # In standalone theme, gulpfile.js is in root
   printf "  ${ARROW} Checking for gulpfile.js... "

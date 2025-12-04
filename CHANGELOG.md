@@ -1,3 +1,8 @@
+### 2.0.2: 2025-12-04
+
+* Skip gulpfile.js check if no themes exist yet (fresh dudestack template)
+* Ref: DEV-177
+
 ### 2.0.1: 2025-12-03
 
 * Fix gulpfile.js check for dudestack projects (check in themes, not root)
