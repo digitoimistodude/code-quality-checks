@@ -1,3 +1,8 @@
+### 2.0.3: 2025-12-15
+
+* Fix spacing in success box changelog date reminder line
+* Ref: DEV-647
+
 ### 2.0.2: 2025-12-04
 
 * Skip gulpfile.js check if no themes exist yet (fresh dudestack template)
