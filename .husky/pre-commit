@@ -2,7 +2,7 @@
 # Ref: DEV-177, DEV-373, DEV-623
 
 # Version:
-VERSION="2.0.2 (2025-12-04)"
+VERSION="2.1.0 (2026-01-08)"
 
 # Load configuration
 # First check for local project config, then fall back to package default
@@ -169,49 +169,109 @@ if [ ! -d ".github/workflows" ]; then
 fi
 echo "${GREEN}${CHECK} OK${NC}"
 
-# Check for gulpfile.js - location depends on context
+# Detect build system: Parcel or Gulp
+detect_build_system() {
+  local pkg_json="$1"
+  if [ -f "$pkg_json" ]; then
+    if grep -q '"parcel"' "$pkg_json"; then
+      echo "parcel"
+    elif grep -q '"gulp"' "$pkg_json"; then
+      echo "gulp"
+    else
+      echo "unknown"
+    fi
+  else
+    echo "unknown"
+  fi
+}
+
+# Check build system configuration - location depends on context
 if [ "$CONTEXT" = "dudestack" ]; then
-  # In dudestack, gulpfile.js is in themes
+  # In dudestack, build files are in themes
   # Skip check if no themes exist yet (fresh dudestack template)
   theme_count=$(find content/themes -maxdepth 1 -mindepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
   if [ "$theme_count" -gt 0 ]; then
-    printf "  ${ARROW} Checking for gulpfile.js in themes... "
-    gulpfile_found=false
     for theme_dir in content/themes/*/; do
-      if [ -f "${theme_dir}gulpfile.js" ]; then
-        gulpfile_found=true
-        break
+      if [ -f "${theme_dir}package.json" ]; then
+        BUILD_SYSTEM=$(detect_build_system "${theme_dir}package.json")
+        theme_name=$(basename "$theme_dir")
+
+        if [ "$BUILD_SYSTEM" = "parcel" ]; then
+          printf "  ${ARROW} Checking Parcel config in theme '${theme_name}'... "
+          if [ -f "${theme_dir}.parcelrc" ] || [ -f "${theme_dir}parcel.config.js" ]; then
+            echo "${GREEN}${CHECK} OK${NC}"
+          else
+            echo "${RED}${CROSS} FAILED${NC}"
+            echo "    ${RED}.parcelrc is missing from theme directory${NC}"
+            echo "    ${YELLOW}Please ensure Parcel is properly configured${NC}"
+            exit 1
+          fi
+        elif [ "$BUILD_SYSTEM" = "gulp" ]; then
+          printf "  ${ARROW} Checking gulpfile.js in theme '${theme_name}'... "
+          if [ -f "${theme_dir}gulpfile.js" ]; then
+            echo "${GREEN}${CHECK} OK${NC}"
+          else
+            echo "${RED}${CROSS} FAILED${NC}"
+            echo "    ${RED}gulpfile.js is missing from theme directory${NC}"
+            echo "    ${YELLOW}Please ensure Gulp is properly set up${NC}"
+            exit 1
+          fi
+        fi
       fi
     done
-    if [ "$gulpfile_found" = false ]; then
+  fi
+else
+  # Standalone theme - check root
+  BUILD_SYSTEM=$(detect_build_system "package.json")
+
+  if [ "$BUILD_SYSTEM" = "parcel" ]; then
+    printf "  ${ARROW} Checking for Parcel configuration... "
+    if [ -f ".parcelrc" ] || [ -f "parcel.config.js" ]; then
+      echo "${GREEN}${CHECK} OK${NC}"
+    else
       echo "${RED}${CROSS} FAILED${NC}"
-      echo "    ${RED}gulpfile.js is missing from theme directories${NC}"
-      echo "    ${YELLOW}Please ensure Gulp is properly set up in your theme${NC}"
+      echo "    ${RED}.parcelrc is missing from root directory${NC}"
+      echo "    ${YELLOW}Please ensure Parcel is properly configured${NC}"
+      exit 1
+    fi
+
+    printf "  ${ARROW} Checking for parcel in package.json... "
+    if [ -f "package.json" ] && ! npm list parcel >/dev/null 2>&1; then
+      echo "${RED}${CROSS} FAILED${NC}"
+      echo "    ${RED}Parcel is not installed${NC}"
+      echo "    ${YELLOW}Please install Parcel:${NC}"
+      echo "    ${BLUE}nvm use${NC}"
+      echo "    ${BLUE}npm install parcel --save-dev${NC}"
       exit 1
     fi
     echo "${GREEN}${CHECK} OK${NC}"
-  fi
-else
-  # In standalone theme, gulpfile.js is in root
-  printf "  ${ARROW} Checking for gulpfile.js... "
-  if [ ! -f "gulpfile.js" ]; then
-    echo "${RED}${CROSS} FAILED${NC}"
-    echo "    ${RED}gulpfile.js is missing from root directory${NC}"
-    echo "    ${YELLOW}Please ensure Gulp is properly set up${NC}"
-    exit 1
-  fi
-  echo "${GREEN}${CHECK} OK${NC}"
 
-  printf "  ${ARROW} Checking for gulp in package.json... "
-  if [ -f "package.json" ] && ! npm list gulp >/dev/null 2>&1; then
-    echo "${RED}${CROSS} FAILED${NC}"
-    echo "    ${RED}Gulp is not installed${NC}"
-    echo "    ${YELLOW}Please install Gulp:${NC}"
-    echo "    ${BLUE}nvm use${NC}"
-    echo "    ${BLUE}npm install gulp --save-dev${NC}"
-    exit 1
+  elif [ "$BUILD_SYSTEM" = "gulp" ]; then
+    printf "  ${ARROW} Checking for gulpfile.js... "
+    if [ ! -f "gulpfile.js" ]; then
+      echo "${RED}${CROSS} FAILED${NC}"
+      echo "    ${RED}gulpfile.js is missing from root directory${NC}"
+      echo "    ${YELLOW}Please ensure Gulp is properly set up${NC}"
+      exit 1
+    fi
+    echo "${GREEN}${CHECK} OK${NC}"
+
+    printf "  ${ARROW} Checking for gulp in package.json... "
+    if [ -f "package.json" ] && ! npm list gulp >/dev/null 2>&1; then
+      echo "${RED}${CROSS} FAILED${NC}"
+      echo "    ${RED}Gulp is not installed${NC}"
+      echo "    ${YELLOW}Please install Gulp:${NC}"
+      echo "    ${BLUE}nvm use${NC}"
+      echo "    ${BLUE}npm install gulp --save-dev${NC}"
+      exit 1
+    fi
+    echo "${GREEN}${CHECK} OK${NC}"
+
+  else
+    printf "  ${ARROW} Checking for build system... "
+    echo "${YELLOW}⚠️  UNKNOWN${NC}"
+    echo "    ${YELLOW}No Parcel or Gulp found in package.json${NC}"
   fi
-  echo "${GREEN}${CHECK} OK${NC}"
 fi
 
 printf "  ${ARROW} Checking for root CHANGELOG.md... "

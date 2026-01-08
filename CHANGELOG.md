@@ -1,3 +1,7 @@
+### 2.1.0: 2026-01-08
+
+* Add Parcel build system support, auto-detect from package.json, Ref: DEV-673
+
 ### 2.0.3: 2025-12-15
 
 * Fix spacing in success box changelog date reminder line

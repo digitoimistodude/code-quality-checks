@@ -1,6 +1,6 @@
 {
   "name": "@digitoimistodude/code-quality-checks",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "Code quality definitions and Husky pre-commit hooks for Dude WordPress projects",
   "main": "index.js",
   "files": [

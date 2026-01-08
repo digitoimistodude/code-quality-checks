@@ -7,10 +7,11 @@ Dude's comprehensive code quality definitions and pre-commit hooks for WordPress
 ## Features
 
 * Pre-commit hooks with comprehensive code quality checks
-* Automatic context detection (standalone theme vs Bedrock project)
+* Automatic context detection (standalone theme vs dudestack project)
+* Build system detection (Parcel or Gulp)
 * PHP CodeSniffer validation
 * Stylelint for SCSS files
-* WordPress version checks (Bedrock mode)
+* WordPress version checks (dudestack mode)
 * Dependency validation for Composer and npm
 * Merge conflict and scissor mark detection
 * Commit message validation with Linear integration
@@ -53,10 +54,10 @@ chmod +x .husky/pre-commit .husky/commit-msg
 
 The hooks automatically detect whether they're running in:
 
-* **Bedrock project**: Has `content/themes/` directory and `composer.json`
+* **dudestack project**: Has `content/themes/` directory and `composer.json`
 * **Standalone theme**: Everything else
 
-### Bedrock mode checks
+### dudestack mode checks
 
 * WordPress version in composer.json
 * Composer dependencies
@@ -67,7 +68,8 @@ The hooks automatically detect whether they're running in:
 
 ### Standalone mode checks
 
-* Basic file requirements (.nvmrc, phpcs.xml, gulpfile.js)
+* Basic file requirements (.nvmrc, phpcs.xml)
+* Build system config (Parcel: .parcelrc or Gulp: gulpfile.js)
 * npm dependencies
 * Stylelint config in current directory
 * PHP syntax validation
@@ -95,7 +97,7 @@ CHECK_CHANGED_ONLY=true
 
 * Node.js >= 18.0.0
 * PHP >= 8.1
-* Composer (for Bedrock projects)
+* Composer (for dudestack projects)
 * husky >= 9.1.7
 
 ## Updating
