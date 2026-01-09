@@ -1,3 +1,7 @@
+### 2.1.1: 2026-01-09
+
+* Use local stylelint from theme node_modules instead of npx, Ref: DEV-567
+
 ### 2.1.0: 2026-01-08
 
 * Add Parcel build system support, auto-detect from package.json, Ref: DEV-673

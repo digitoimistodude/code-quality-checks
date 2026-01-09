@@ -2,7 +2,7 @@
 # Ref: DEV-177, DEV-373, DEV-623
 
 # Version:
-VERSION="2.1.0 (2026-01-08)"
+VERSION="2.1.1 (2026-01-09)"
 
 # Load configuration
 # First check for local project config, then fall back to package default
@@ -677,16 +677,19 @@ scss_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.scss$' | 
 if [ -n "$scss_files" ]; then
   printf "  ${ARROW} Running stylelint on changed SCSS files... "
 
-  # Find stylelint config
+  # Find stylelint config and binary
   stylelint_config=""
+  stylelint_bin=""
   if [ "$CONTEXT" = "dudestack" ]; then
-    # Find stylelint config in theme directories
+    # Find stylelint config and binary in theme directories
     for theme_dir in content/themes/*/; do
       if [ -f "${theme_dir}.stylelintrc" ]; then
         stylelint_config="${theme_dir}.stylelintrc"
+        stylelint_bin="${theme_dir}node_modules/.bin/stylelint"
         break
       elif [ -f "${theme_dir}.stylelintrc.json" ]; then
         stylelint_config="${theme_dir}.stylelintrc.json"
+        stylelint_bin="${theme_dir}node_modules/.bin/stylelint"
         break
       fi
     done
@@ -701,10 +704,18 @@ if [ -n "$scss_files" ]; then
     elif [ -f ".stylelintrc.yml" ]; then
       stylelint_config=".stylelintrc.yml"
     fi
+    stylelint_bin="./node_modules/.bin/stylelint"
   fi
 
   if [ -n "$stylelint_config" ]; then
-    if ! npx stylelint --config "$stylelint_config" $scss_files 2>/dev/null; then
+    # Use local stylelint if available, fall back to npx
+    if [ -x "$stylelint_bin" ]; then
+      stylelint_cmd="$stylelint_bin"
+    else
+      stylelint_cmd="npx stylelint"
+    fi
+
+    if ! $stylelint_cmd --config "$stylelint_config" $scss_files 2>/dev/null; then
       echo "${RED}${CROSS} FAILED${NC}"
       echo "    ${RED}Stylelint found errors in SCSS files${NC}"
       echo "    ${YELLOW}Please fix the following files:${NC}"
@@ -712,7 +723,7 @@ if [ -n "$scss_files" ]; then
         echo "      ${YELLOW}• $file${NC}"
       done
       echo "    ${YELLOW}To see detailed errors:${NC}"
-      echo "    ${BLUE}npx stylelint --config \"$stylelint_config\" $scss_files${NC}"
+      echo "    ${BLUE}$stylelint_cmd --config \"$stylelint_config\" $scss_files${NC}"
       exit 1
     fi
     echo "${GREEN}${CHECK} OK${NC}"
