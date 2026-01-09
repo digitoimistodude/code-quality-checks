@@ -2,7 +2,7 @@
 # Ref: DEV-177, DEV-373, DEV-623
 
 # Version:
-VERSION="2.1.1 (2026-01-09)"
+VERSION="2.1.2 (2026-01-09)"
 
 # Load configuration
 # First check for local project config, then fall back to package default
@@ -391,13 +391,15 @@ if [ "$CONTEXT" = "dudestack" ]; then
       # Check Theme Name line
       theme_name_line=$(grep "^Theme Name:" "${theme_dir}style.css" 2>/dev/null || echo "")
       if [ -n "$theme_name_line" ]; then
-        # Check if theme name contains lowercase theme name
-        if echo "$theme_name_line" | grep -qi "Theme Name:.*$theme_name"; then
+        # Extract the actual theme name value after "Theme Name:"
+        theme_name_value=$(echo "$theme_name_line" | sed 's/^Theme Name:[[:space:]]*//')
+
+        # Check if theme name starts with lowercase letter (should be capitalized)
+        if echo "$theme_name_value" | grep -q "^[a-z]"; then
           echo "${RED}${CROSS} FAILED${NC}"
-          echo "    ${RED}Theme Name contains lowercase theme name '$theme_name'${NC}"
+          echo "    ${RED}Theme Name should start with a capital letter${NC}"
           echo "    ${YELLOW}Found: $theme_name_line${NC}"
-          echo "    ${YELLOW}Should contain a clear theme name in sentence case${NC}"
-          echo "    ${YELLOW}Example: Theme Name: My Website Theme${NC}"
+          echo "    ${YELLOW}Should be properly capitalized${NC}"
           echo "    ${BLUE}nano ${theme_dir}style.css${NC}"
           exit 1
         fi

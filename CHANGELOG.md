@@ -1,3 +1,7 @@
+### 2.1.2: 2026-01-09
+
+* Fix theme name validation to only check for proper capitalization, Ref: DEV-567
+
 ### 2.1.1: 2026-01-09
 
 * Use local stylelint from theme node_modules instead of npx, Ref: DEV-567
