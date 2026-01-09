@@ -1,3 +1,7 @@
+### 2.1.3: 2026-01-09
+
+* Fix stylelint to run from theme directory for dudestack projects, Ref: DEV-567
+
 ### 2.1.2: 2026-01-09
 
 * Fix theme name validation to only check for proper capitalization, Ref: DEV-567

@@ -2,7 +2,7 @@
 # Ref: DEV-177, DEV-373, DEV-623
 
 # Version:
-VERSION="2.1.2 (2026-01-09)"
+VERSION="2.1.3 (2026-01-09)"
 
 # Load configuration
 # First check for local project config, then fall back to package default
@@ -682,16 +682,19 @@ if [ -n "$scss_files" ]; then
   # Find stylelint config and binary
   stylelint_config=""
   stylelint_bin=""
+  theme_dir_for_stylelint=""
   if [ "$CONTEXT" = "dudestack" ]; then
     # Find stylelint config and binary in theme directories
     for theme_dir in content/themes/*/; do
       if [ -f "${theme_dir}.stylelintrc" ]; then
-        stylelint_config="${theme_dir}.stylelintrc"
-        stylelint_bin="${theme_dir}node_modules/.bin/stylelint"
+        stylelint_config=".stylelintrc"
+        stylelint_bin="./node_modules/.bin/stylelint"
+        theme_dir_for_stylelint="$theme_dir"
         break
       elif [ -f "${theme_dir}.stylelintrc.json" ]; then
-        stylelint_config="${theme_dir}.stylelintrc.json"
-        stylelint_bin="${theme_dir}node_modules/.bin/stylelint"
+        stylelint_config=".stylelintrc.json"
+        stylelint_bin="./node_modules/.bin/stylelint"
+        theme_dir_for_stylelint="$theme_dir"
         break
       fi
     done
@@ -717,18 +720,59 @@ if [ -n "$scss_files" ]; then
       stylelint_cmd="npx stylelint"
     fi
 
-    if ! $stylelint_cmd --config "$stylelint_config" $scss_files 2>/dev/null; then
-      echo "${RED}${CROSS} FAILED${NC}"
-      echo "    ${RED}Stylelint found errors in SCSS files${NC}"
-      echo "    ${YELLOW}Please fix the following files:${NC}"
+    # For dudestack, run stylelint from theme directory with converted paths
+    if [ "$CONTEXT" = "dudestack" ] && [ -n "$theme_dir_for_stylelint" ]; then
+      # Convert paths: content/themes/dude/file.scss -> file.scss
+      theme_prefix="${theme_dir_for_stylelint%/}"
+      relative_scss_files=""
       for file in $scss_files; do
-        echo "      ${YELLOW}• $file${NC}"
+        # Only include files from this theme
+        case "$file" in
+          ${theme_prefix}/*)
+            relative_file="${file#${theme_prefix}/}"
+            relative_scss_files="$relative_scss_files $relative_file"
+            ;;
+        esac
       done
-      echo "    ${YELLOW}To see detailed errors:${NC}"
-      echo "    ${BLUE}$stylelint_cmd --config \"$stylelint_config\" $scss_files${NC}"
-      exit 1
+
+      if [ -n "$relative_scss_files" ]; then
+        # Save current directory and cd to theme
+        original_dir=$(pwd)
+        cd "$theme_dir_for_stylelint" || exit 1
+
+        if ! $stylelint_cmd --config "$stylelint_config" $relative_scss_files 2>/dev/null; then
+          cd "$original_dir" || exit 1
+          echo "${RED}${CROSS} FAILED${NC}"
+          echo "    ${RED}Stylelint found errors in SCSS files${NC}"
+          echo "    ${YELLOW}Please fix the following files:${NC}"
+          for file in $scss_files; do
+            echo "      ${YELLOW}• $file${NC}"
+          done
+          echo "    ${YELLOW}To see detailed errors, run from theme directory:${NC}"
+          echo "    ${BLUE}cd $theme_dir_for_stylelint && $stylelint_cmd --config \"$stylelint_config\" $relative_scss_files${NC}"
+          exit 1
+        fi
+        cd "$original_dir" || exit 1
+        echo "${GREEN}${CHECK} OK${NC}"
+      else
+        echo "${YELLOW}⚠️  SKIPPED${NC}"
+        echo "    ${YELLOW}No SCSS files in theme directory${NC}"
+      fi
+    else
+      # Standalone: run from current directory
+      if ! $stylelint_cmd --config "$stylelint_config" $scss_files 2>/dev/null; then
+        echo "${RED}${CROSS} FAILED${NC}"
+        echo "    ${RED}Stylelint found errors in SCSS files${NC}"
+        echo "    ${YELLOW}Please fix the following files:${NC}"
+        for file in $scss_files; do
+          echo "      ${YELLOW}• $file${NC}"
+        done
+        echo "    ${YELLOW}To see detailed errors:${NC}"
+        echo "    ${BLUE}$stylelint_cmd --config \"$stylelint_config\" $scss_files${NC}"
+        exit 1
+      fi
+      echo "${GREEN}${CHECK} OK${NC}"
     fi
-    echo "${GREEN}${CHECK} OK${NC}"
   else
     echo "${YELLOW}⚠️  SKIPPED${NC}"
     echo "    ${YELLOW}No .stylelintrc config found${NC}"
