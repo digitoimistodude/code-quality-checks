@@ -1,3 +1,7 @@
+### 2.1.5: 2026-01-15
+
+* Fix missing `.husky/_` wrapper scripts in npm package
+
 ### 2.1.4: 2026-01-15
 
 * Add postinstall script for plug-and-play setup with absolute paths
