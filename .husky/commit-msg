@@ -99,11 +99,10 @@ if [ -f "$commit_msg_file" ]; then
     # Check for uncommitted files
     uncommitted_files=$(git status --porcelain | wc -l | tr -d ' ')
     if [ "$uncommitted_files" -gt 0 ]; then
-      if [ "$uncommitted_files" -ge 10 ]; then
-        echo "${GREEN}║${NC} ${GREEN}• You have $uncommitted_files uncommitted files${NC}$(printf '%*s' 27 '')${GREEN}║${NC}"
-      else
-        echo "${GREEN}║${NC} ${GREEN}• You have $uncommitted_files uncommitted files${NC}$(printf '%*s' 27 '')${GREEN}║${NC}"
-      fi
+      local msg="• You have $uncommitted_files uncommitted files"
+      local msg_len=${#msg}
+      local padding=$((56 - msg_len))
+      echo "${GREEN}║${NC} ${GREEN}${msg}${NC}$(printf '%*s' $padding '')${GREEN}║${NC}"
     fi
 
     # Check current branch

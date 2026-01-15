@@ -1,3 +1,8 @@
+### 2.1.6: 2026-01-15
+
+* Enforce zero stylelint warnings with --max-warnings 0
+* Fix uncommitted files count box alignment in success message
+
 ### 2.1.5: 2026-01-15
 
 * Fix missing `.husky/_` wrapper scripts in npm package

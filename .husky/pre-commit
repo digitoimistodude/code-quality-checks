@@ -2,7 +2,7 @@
 # Ref: DEV-177, DEV-373, DEV-623
 
 # Version:
-VERSION="2.1.3 (2026-01-09)"
+VERSION="2.1.6 (2026-01-15)"
 
 # Load configuration
 # First check for local project config, then fall back to package default
@@ -740,7 +740,7 @@ if [ -n "$scss_files" ]; then
         original_dir=$(pwd)
         cd "$theme_dir_for_stylelint" || exit 1
 
-        if ! $stylelint_cmd --config "$stylelint_config" $relative_scss_files 2>/dev/null; then
+        if ! $stylelint_cmd --config "$stylelint_config" --max-warnings 0 $relative_scss_files 2>/dev/null; then
           cd "$original_dir" || exit 1
           echo "${RED}${CROSS} FAILED${NC}"
           echo "    ${RED}Stylelint found errors in SCSS files${NC}"
@@ -760,7 +760,7 @@ if [ -n "$scss_files" ]; then
       fi
     else
       # Standalone: run from current directory
-      if ! $stylelint_cmd --config "$stylelint_config" $scss_files 2>/dev/null; then
+      if ! $stylelint_cmd --config "$stylelint_config" --max-warnings 0 $scss_files 2>/dev/null; then
         echo "${RED}${CROSS} FAILED${NC}"
         echo "    ${RED}Stylelint found errors in SCSS files${NC}"
         echo "    ${YELLOW}Please fix the following files:${NC}"
