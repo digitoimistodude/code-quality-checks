@@ -1,3 +1,9 @@
+### 2.1.4: 2026-01-15
+
+* Add postinstall script for plug-and-play setup with absolute paths
+* Fix hooks not working when committing from git root in dudestack projects
+* Move `_` folder inside `.husky/` for proper husky structure
+
 ### 2.1.3: 2026-01-09
 
 * Fix stylelint to run from theme directory for dudestack projects, Ref: DEV-567

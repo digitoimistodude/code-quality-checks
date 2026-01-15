@@ -1,12 +1,17 @@
 {
   "name": "@digitoimistodude/code-quality-checks",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "Code quality definitions and Husky pre-commit hooks for Dude WordPress projects",
   "main": "index.js",
+  "scripts": {
+    "postinstall": "node bin/setup.js"
+  },
   "files": [
     ".husky/pre-commit",
     ".husky/pre-commit-config",
     ".husky/commit-msg",
+    ".husky/_",
+    "bin",
     "index.js"
   ],
   "repository": {
