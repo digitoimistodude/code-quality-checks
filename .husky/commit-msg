@@ -101,7 +101,7 @@ if [ -f "$commit_msg_file" ]; then
     if [ "$uncommitted_files" -gt 0 ]; then
       local msg="• You have $uncommitted_files uncommitted files"
       local msg_len=${#msg}
-      local padding=$((56 - msg_len))
+      local padding=$((57 - msg_len))
       echo "${GREEN}║${NC} ${GREEN}${msg}${NC}$(printf '%*s' $padding '')${GREEN}║${NC}"
     fi
 

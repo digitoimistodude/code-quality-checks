@@ -1,3 +1,8 @@
+### 2.1.7: 2026-01-16
+
+* Fix uncommitted files count box alignment padding calculation
+* Read version and date dynamically from CHANGELOG.md in pre-commit
+
 ### 2.1.6: 2026-01-15
 
 * Enforce zero stylelint warnings with --max-warnings 0

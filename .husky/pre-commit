@@ -1,8 +1,15 @@
 # Pre commit hooks for Dude projects
 # Ref: DEV-177, DEV-373, DEV-623
 
-# Version:
-VERSION="2.1.6 (2026-01-15)"
+# Version: dynamically read from CHANGELOG.md
+if [ -f "CHANGELOG.md" ]; then
+  CHANGELOG_LINE=$(head -n 1 CHANGELOG.md)
+  VERSION_NUM=$(echo "$CHANGELOG_LINE" | sed 's/### //' | sed 's/:.*//')
+  VERSION_DATE=$(echo "$CHANGELOG_LINE" | sed 's/.*: //')
+  VERSION="$VERSION_NUM ($VERSION_DATE)"
+else
+  VERSION="unknown"
+fi
 
 # Load configuration
 # First check for local project config, then fall back to package default
