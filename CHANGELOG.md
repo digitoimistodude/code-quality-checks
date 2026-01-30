@@ -1,3 +1,7 @@
+### 2.1.8: 2026-01-30
+
+* Fix Friday notification box alignment padding for emoji display width
+
 ### 2.1.7: 2026-01-16
 
 * Fix uncommitted files count box alignment padding calculation
