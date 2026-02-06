@@ -1,3 +1,7 @@
+### 2.1.9: 2026-02-06
+
+* Fix Friday notification box edge alignment with correct padding, Ref: DEV-745
+
 ### 2.1.8: 2026-01-30
 
 * Fix Friday notification box alignment padding for emoji display width
