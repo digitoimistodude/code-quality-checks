@@ -1,3 +1,8 @@
+### 2.1.10: 2026-02-06
+
+* Add check for newer code-quality-checks version available on npm, Ref: DEV-749
+* Improve SCSS check skip message to clarify it only checks staged files, Ref: DEV-738
+
 ### 2.1.9: 2026-02-06
 
 * Fix Friday notification box edge alignment with correct padding, Ref: DEV-745

@@ -602,6 +602,30 @@ if [ "$CONTEXT" = "standalone" ]; then
   echo "${GREEN}${CHECK} OK${NC}"
 fi
 
+# Check for newer version of code-quality-checks
+printf "  ${ARROW} Checking for code-quality-checks updates... "
+current_version=$(grep '"version":' "$(npm root -g 2>/dev/null || echo node_modules)/@digitoimistodude/code-quality-checks/package.json" 2>/dev/null | head -1 | sed 's/.*"version": "\(.*\)".*/\1/' || echo "")
+if [ -z "$current_version" ]; then
+  # Try local node_modules if global not found
+  current_version=$(grep '"version":' "node_modules/@digitoimistodude/code-quality-checks/package.json" 2>/dev/null | head -1 | sed 's/.*"version": "\(.*\)".*/\1/' || echo "unknown")
+fi
+
+if [ "$current_version" != "unknown" ]; then
+  # Check npm for latest version with 2 second timeout
+  latest_version=$(timeout 2s npm view @digitoimistodude/code-quality-checks version 2>/dev/null || echo "")
+
+  if [ -n "$latest_version" ] && [ "$current_version" != "$latest_version" ]; then
+    echo "${YELLOW}⚠️  UPDATE AVAILABLE${NC}"
+    echo "    ${YELLOW}Current: $current_version | Latest: $latest_version${NC}"
+    echo "    ${YELLOW}Update with: ${BLUE}npm install -g @digitoimistodude/code-quality-checks@latest${NC}"
+  else
+    echo "${GREEN}${CHECK} OK${NC}"
+  fi
+else
+  echo "${YELLOW}⚠️  SKIPPED${NC}"
+  echo "    ${YELLOW}Could not determine current version${NC}"
+fi
+
 echo ""
 echo "${CYAN}${SEARCH} Checking staged files for issues...${NC}"
 
@@ -763,7 +787,7 @@ if [ -n "$scss_files" ]; then
         echo "${GREEN}${CHECK} OK${NC}"
       else
         echo "${YELLOW}⚠️  SKIPPED${NC}"
-        echo "    ${YELLOW}No SCSS files in theme directory${NC}"
+        echo "    ${YELLOW}No staged SCSS files found in theme directory ($theme_prefix)${NC}"
       fi
     else
       # Standalone: run from current directory
