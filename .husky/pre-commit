@@ -1,19 +1,20 @@
 # Pre commit hooks for Dude projects
 # Ref: DEV-177, DEV-373, DEV-623
 
-# Version: dynamically read from CHANGELOG.md
-if [ -f "CHANGELOG.md" ]; then
-  CHANGELOG_LINE=$(head -n 1 CHANGELOG.md)
+# Load configuration
+# First check for local project config, then fall back to package default
+SCRIPT_DIR="$(dirname "$0")"
+
+# Version: dynamically read from code-quality-checks package CHANGELOG.md
+PACKAGE_CHANGELOG="$SCRIPT_DIR/../CHANGELOG.md"
+if [ -f "$PACKAGE_CHANGELOG" ]; then
+  CHANGELOG_LINE=$(head -n 1 "$PACKAGE_CHANGELOG")
   VERSION_NUM=$(echo "$CHANGELOG_LINE" | sed 's/### //' | sed 's/:.*//')
   VERSION_DATE=$(echo "$CHANGELOG_LINE" | sed 's/.*: //')
   VERSION="$VERSION_NUM ($VERSION_DATE)"
 else
   VERSION="unknown"
 fi
-
-# Load configuration
-# First check for local project config, then fall back to package default
-SCRIPT_DIR="$(dirname "$0")"
 if [ -f ".husky/pre-commit-config" ]; then
   . ".husky/pre-commit-config"
 elif [ -f "$SCRIPT_DIR/pre-commit-config" ]; then

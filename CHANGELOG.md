@@ -1,3 +1,7 @@
+### 2.1.11: 2026-02-12
+
+* Read version from package's own CHANGELOG.md instead of project root, Ref: DEV-761
+
 ### 2.1.10: 2026-02-06
 
 * Add check for newer code-quality-checks version available on npm, Ref: DEV-749
