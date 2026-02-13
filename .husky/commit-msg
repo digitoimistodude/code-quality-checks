@@ -25,6 +25,12 @@ if [ -f "$commit_msg_file" ]; then
   commit_msg=$(cat "$commit_msg_file")
   printf "  ${ARROW} Validating commit message... "
 
+  # Skip validation for merge commits and conflict resolutions
+  if [ -f ".git/MERGE_HEAD" ] || echo "$commit_msg" | head -1 | grep -qiE "^merge |merge conflict|fix.*conflict|resolve.*conflict"; then
+    echo "${GREEN}${CHECK} OK (merge commit)${NC}"
+    exit 0
+  fi
+
   # Check for task ID pattern (e.g., DEV-123, TASK-456, etc.)
   task_id_pattern="[A-Z]+-[0-9]+"
 

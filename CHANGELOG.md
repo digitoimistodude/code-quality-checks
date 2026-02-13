@@ -1,3 +1,7 @@
+### 2.1.12: 2026-02-13
+
+* Skip commit message validation for merge commits and conflict resolutions, Ref: DEV-427
+
 ### 2.1.11: 2026-02-12
 
 * Read version from package's own CHANGELOG.md instead of project root, Ref: DEV-761
