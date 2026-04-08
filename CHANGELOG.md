@@ -1,3 +1,7 @@
+### 2.2.0: 2026-04-08
+
+* Show commit ID and date in header when version is unreleased, Ref: DEV-887
+
 ### 2.1.12: 2026-02-13
 
 * Skip commit message validation for merge commits and conflict resolutions, Ref: DEV-427

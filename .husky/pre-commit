@@ -10,8 +10,14 @@ PACKAGE_CHANGELOG="$SCRIPT_DIR/../CHANGELOG.md"
 if [ -f "$PACKAGE_CHANGELOG" ]; then
   CHANGELOG_LINE=$(head -n 1 "$PACKAGE_CHANGELOG")
   VERSION_NUM=$(echo "$CHANGELOG_LINE" | sed 's/### //' | sed 's/:.*//')
-  VERSION_DATE=$(echo "$CHANGELOG_LINE" | sed 's/.*: //')
-  VERSION="$VERSION_NUM ($VERSION_DATE)"
+  if [ "$VERSION_NUM" = "[Unreleased]" ]; then
+    COMMIT_ID=$(git -C "$SCRIPT_DIR/.." rev-parse --short HEAD 2>/dev/null)
+    COMMIT_DATE=$(git -C "$SCRIPT_DIR/.." log -1 --format=%cs 2>/dev/null)
+    VERSION="Unreleased, ${COMMIT_ID} (${COMMIT_DATE})"
+  else
+    VERSION_DATE=$(echo "$CHANGELOG_LINE" | sed 's/.*: //')
+    VERSION="$VERSION_NUM ($VERSION_DATE)"
+  fi
 else
   VERSION="unknown"
 fi
@@ -119,7 +125,11 @@ print_logo() {
 print_logo
 
 echo ""
-echo "${MINT}Dude's husky quality control config v. ${VERSION}${NC}"
+if echo "$VERSION" | grep -q "^Unreleased"; then
+  echo "${MINT}Dude's husky quality control config ${VERSION}${NC}"
+else
+  echo "${MINT}Dude's husky quality control config v. ${VERSION}${NC}"
+fi
 if [ "$CONTEXT" = "dudestack" ]; then
   echo "${MINT}${GEAR}  Running pre-commit checks (dudestack project)...${NC}"
 else
