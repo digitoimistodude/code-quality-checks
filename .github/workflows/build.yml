@@ -1,0 +1,29 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  hooks:
+    name: Hook installation
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+
+    - name: Install dependencies
+      run: npm install --ignore-scripts
+
+    - name: Hook installation must work
+      run: bash tests/hooks.sh
+
+    - name: Hook scripts must be valid shell
+      run: |
+        for hook in .husky/pre-commit .husky/commit-msg; do
+          sh -n "$hook"
+        done

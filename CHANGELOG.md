@@ -1,3 +1,8 @@
+### 2.2.1: 2026-08-20
+
+* Add hook installation tests, Ref: DEV-1254
+* Run hook tests in CI
+
 ### 2.2.0: 2026-04-08
 
 * Show commit ID and date in header when version is unreleased, Ref: DEV-887
