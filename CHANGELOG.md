@@ -1,3 +1,8 @@
+### 2.3.0: 2026-08-27
+
+* Reject AI attribution in commit messages, Ref: DEV-1291
+* Add tests for the AI attribution check
+
 ### 2.2.1: 2026-08-20
 
 * Add hook installation tests, Ref: DEV-1254

@@ -12,7 +12,10 @@
 - Always add an empty line after headings
 - No formatting in CHANGELOG.md except `inline code` and when absolute necessary
 - Use `*` as bullets in CHANGELOG.md
-- Never use Claude watermark in commits (FORBIDDEN: "Co-Authored-By")
+- Never carry AI attribution in commits, commit trailers, PR titles or PR descriptions
+- FORBIDDEN: `Co-Authored-By` trailers naming an AI tool or model, generated-with lines such as "Generated with Claude Code", AI vendor footer links, AI session URLs
+- `Co-Authored-By` for real people is fine, the rule is about machines
+- The `commit-msg` hook in code-quality-checks blocks these, amend the commit instead of bypassing the hook
 - No emojis in commits or code
 - Keep CHANGELOG.md date up to date when adding entries
 

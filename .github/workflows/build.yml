@@ -22,6 +22,9 @@ jobs:
     - name: Hook installation must work
       run: bash tests/hooks.sh
 
+    - name: AI attribution must be rejected
+      run: bash tests/ai-attribution.sh
+
     - name: Hook scripts must be valid shell
       run: |
         for hook in .husky/pre-commit .husky/commit-msg; do

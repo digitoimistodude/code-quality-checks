@@ -1,6 +1,6 @@
 #!/bin/sh
 # Commit message validation hook for Dude projects
-# Ref: DEV-177, DEV-373, DEV-623
+# Ref: DEV-177, DEV-373, DEV-623, DEV-1291
 
 # Colors for output
 RED='\033[1;31m'
@@ -24,6 +24,52 @@ commit_msg_file="$1"
 if [ -f "$commit_msg_file" ]; then
   commit_msg=$(cat "$commit_msg_file")
   printf "  ${ARROW} Validating commit message... "
+
+  # ---------------------------------------------------------------------------
+  # AI attribution is never allowed, not even on merge commits.
+  #
+  # The git history is a record of human decisions and it outlives the tool that
+  # happened to be open at the time. Assistants are fine, signing our history
+  # with them is not. Human Co-Authored-By trailers stay allowed on purpose.
+  # ---------------------------------------------------------------------------
+  ai_vendors="claude|anthropic|chatgpt|openai|copilot|codeium|windsurf|devin|aider|codex|tabnine|sourcegraph|blackbox|lovable"
+
+  # An AI tool or model signed as co-author
+  ai_trailer="^[[:space:]]*co-authored-by:.*(${ai_vendors}|cursor|gemini|cody|amazon q|noreply@(anthropic|openai|google)\\.com)"
+
+  # Generated with, created by, written using an assistant
+  ai_generated="(generated|created|written|authored|assisted|produced)[[:space:]]+(with|by|using)[[:space:]]*:?[[:space:]]*(the[[:space:]]+)?(${ai_vendors}|cursor|gemini|ai[[:space:]]|an[[:space:]]+ai|llm)"
+
+  # Vendor footer links and session URLs
+  ai_url="(claude\\.(ai|com)|anthropic\\.com|chatgpt\\.com|chat\\.openai\\.com|copilot\\.github\\.com|github\\.com/features/copilot|cursor\\.(com|sh)|codeium\\.com|windsurf\\.(ai|com)|devin\\.ai)"
+
+  ai_offence=""
+  if echo "$commit_msg" | grep -iE "$ai_trailer" >/dev/null 2>&1; then
+    ai_offence="AI co-author trailer"
+  elif echo "$commit_msg" | grep -iE "$ai_generated" >/dev/null 2>&1; then
+    ai_offence="AI generated-with line"
+  elif echo "$commit_msg" | grep -iE "$ai_url" >/dev/null 2>&1; then
+    ai_offence="AI vendor link"
+  elif echo "$commit_msg" | grep -qF "$(printf '\360\237\244\226')" 2>/dev/null; then
+    ai_offence="AI robot marker"
+  fi
+
+  if [ -n "$ai_offence" ]; then
+    echo "${RED}${CROSS} FAILED${NC}"
+    echo "    ${RED}Commit message carries AI attribution (${ai_offence})${NC}"
+    echo "    ${YELLOW}Offending lines:${NC}"
+    echo "$commit_msg" | grep -inE "${ai_trailer}|${ai_generated}|${ai_url}" | while read -r line; do
+      echo "    ${PURPLE}${line}${NC}"
+    done
+    echo ""
+    echo "    ${YELLOW}Our history records human decisions, not tooling.${NC}"
+    echo "    ${YELLOW}Use assistants freely, just do not sign commits with them.${NC}"
+    echo "    ${YELLOW}Co-Authored-By for real people is still fine.${NC}"
+    echo ""
+    echo "    ${YELLOW}Fix it: ${NC}${BLUE}git commit --amend${NC}"
+    echo "    ${YELLOW}See: ${NC}${BLUE}https://github.com/digitoimistodude/.github/blob/master/CONTRIBUTING.md${NC}"
+    exit 1
+  fi
 
   # Skip validation for merge commits and conflict resolutions
   if [ -f ".git/MERGE_HEAD" ] || echo "$commit_msg" | head -1 | grep -qiE "^merge |merge conflict|fix.*conflict|resolve.*conflict"; then

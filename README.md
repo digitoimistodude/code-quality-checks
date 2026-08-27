@@ -15,6 +15,7 @@ Dude's comprehensive code quality definitions and pre-commit hooks for WordPress
 * Dependency validation for Composer and npm
 * Merge conflict and scissor mark detection
 * Commit message validation with Linear integration
+* AI attribution rejection in commit messages
 
 ## Installation
 
@@ -74,6 +75,28 @@ The hooks automatically detect whether they're running in:
 * Stylelint config in current directory
 * PHP syntax validation
 * SCSS linting
+
+## Commit message rules
+
+Every commit message is validated in the `commit-msg` hook.
+
+### Linear reference
+
+The message must carry a task ID and a magic word, for example `Fix navigation bug, Ref: DEV-123`.
+
+### No AI attribution
+
+The commit is rejected if the message carries attribution to an AI tool. This covers `Co-Authored-By` trailers naming an assistant or model, generated-with lines such as `Generated with Claude Code`, AI vendor footer links and AI session URLs. The check runs before the merge-commit escape hatch, so a merge commit cannot carry attribution either.
+
+`Co-Authored-By` trailers for real people are untouched. Use assistants as much as you like, just do not sign the history with them.
+
+When a commit is rejected, amend it rather than bypassing the hook:
+
+```bash
+git commit --amend
+```
+
+See [the organisation contributing rules](https://github.com/digitoimistodude/.github/blob/master/CONTRIBUTING.md) for the policy this enforces.
 
 ## Configuration
 
