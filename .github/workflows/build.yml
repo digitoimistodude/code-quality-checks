@@ -25,8 +25,11 @@ jobs:
     - name: AI attribution must be rejected
       run: bash tests/ai-attribution.sh
 
+    - name: Skipping a single check must work
+      run: bash tests/skip-checks.sh
+
     - name: Hook scripts must be valid shell
       run: |
-        for hook in .husky/pre-commit .husky/commit-msg; do
+        for hook in .husky/pre-commit .husky/commit-msg .husky/skip-checks; do
           sh -n "$hook"
         done

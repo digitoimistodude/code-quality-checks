@@ -2,6 +2,18 @@
 # Commit message validation hook for Dude projects
 # Ref: DEV-177, DEV-373, DEV-623, DEV-1291
 
+SCRIPT_DIR="$(dirname "$0")"
+
+# Shared SKIP_CHECKS helpers, Ref: DEV-1565
+# Without them every guarded check would read as disabled, so a missing file
+# stops the commit rather than quietly approving it.
+if [ -f "$SCRIPT_DIR/skip-checks" ]; then
+  . "$SCRIPT_DIR/skip-checks"
+else
+  echo "skip-checks helper missing from $SCRIPT_DIR, refusing to run a partial hook"
+  exit 1
+fi
+
 # Colors for output
 RED='\033[1;31m'
 GREEN='\033[0;32m'
@@ -18,6 +30,7 @@ SEARCH="🔍"
 
 echo ""
 echo "${SEARCH} Checking commit message format..."
+warn_unknown_skips
 
 # Get the commit message from the file passed as argument
 commit_msg_file="$1"
@@ -86,37 +99,41 @@ if [ -f "$commit_msg_file" ]; then
   # Check for magic words (non-closing)
   non_closing_words="ref|refs|references|part of|related to|contributes to|toward|towards"
 
-  # Check if commit message contains task ID
-  if ! echo "$commit_msg" | grep -iE "$task_id_pattern" >/dev/null 2>&1; then
-    echo "${RED}${CROSS} FAILED${NC}"
-    echo "    ${RED}Commit message missing task ID${NC}"
-    echo "    ${YELLOW}Your commit message:${NC}"
-    echo "    ${BLUE}\"$commit_msg\"${BLUE}"
-    echo ""
-    echo "    ${YELLOW}Expected format: [MAGIC_WORD]: [TASK-ID]${NC}"
-    echo "    ${YELLOW}Correct example: ${BLUE}\"$commit_msg, Ref: DEV-123\"${NC}"
-    echo "    ${YELLOW}See: ${NC}${BLUE}https://linear.app/docs/github?tabs=206cad22125a#link-through-pull-requests${NC}"
-    exit 1
+  if is_skipped "commit-msg-linear"; then
+    echo "${YELLOW}⏭️  SKIPPED (disabled)${NC}"
+  else
+    # Check if commit message contains task ID
+    if ! echo "$commit_msg" | grep -iE "$task_id_pattern" >/dev/null 2>&1; then
+      echo "${RED}${CROSS} FAILED${NC}"
+      echo "    ${RED}Commit message missing task ID${NC}"
+      echo "    ${YELLOW}Your commit message:${NC}"
+      echo "    ${BLUE}\"$commit_msg\"${BLUE}"
+      echo ""
+      echo "    ${YELLOW}Expected format: [MAGIC_WORD]: [TASK-ID]${NC}"
+      echo "    ${YELLOW}Correct example: ${BLUE}\"$commit_msg, Ref: DEV-123\"${NC}"
+      echo "    ${YELLOW}See: ${NC}${BLUE}https://linear.app/docs/github?tabs=206cad22125a#link-through-pull-requests${NC}"
+      exit 1
+    fi
+
+    # Check if commit message contains magic words
+    if ! echo "$commit_msg" | grep -iE "($closing_words|$non_closing_words)" >/dev/null 2>&1; then
+      echo "${RED}${CROSS} FAILED${NC}"
+      echo "    ${RED}Commit message missing magic words${NC}"
+      echo "    ${YELLOW}Your commit message:${NC}"
+      echo "    ${PURPLE}\"$commit_msg\"${NC}"
+      echo "    ${YELLOW}Closing magic words: ${NC}${PURPLE}close, closes, closed, closing, fix, fixes, fixed, fixing, resolve, resolves, resolved, resolving, complete, completes, completed, completing${NC}"
+      echo "    ${YELLOW}Non-closing magic words: ${NC}${PURPLE}ref, refs, references, part of, related to, contributes to, toward, towards${NC}"
+      # Extract task ID from commit message if present for dynamic example
+      extracted_task_id=$(echo "$commit_msg" | grep -ioE "$task_id_pattern" | head -1 || echo "DEV-123")
+      echo "    ${YELLOW}Correct examples:${NC}"
+      echo "    ${PURPLE}\"$commit_msg, Closes $extracted_task_id\"${NC}"
+      echo "    ${PURPLE}\"$commit_msg, Ref: $extracted_task_id\"${NC}"
+      echo "    ${YELLOW}See: ${NC}${PURPLE}https://linear.app/docs/github?tabs=206cad22125a#link-through-pull-requests${NC}"
+      exit 1
+    fi
+    echo "${GREEN}${CHECK} OK${NC}"
   fi
 
-  # Check if commit message contains magic words
-  if ! echo "$commit_msg" | grep -iE "($closing_words|$non_closing_words)" >/dev/null 2>&1; then
-    echo "${RED}${CROSS} FAILED${NC}"
-    echo "    ${RED}Commit message missing magic words${NC}"
-    echo "    ${YELLOW}Your commit message:${NC}"
-    echo "    ${PURPLE}\"$commit_msg\"${NC}"
-    echo "    ${YELLOW}Closing magic words: ${NC}${PURPLE}close, closes, closed, closing, fix, fixes, fixed, fixing, resolve, resolves, resolved, resolving, complete, completes, completed, completing${NC}"
-    echo "    ${YELLOW}Non-closing magic words: ${NC}${PURPLE}ref, refs, references, part of, related to, contributes to, toward, towards${NC}"
-    # Extract task ID from commit message if present for dynamic example
-    extracted_task_id=$(echo "$commit_msg" | grep -ioE "$task_id_pattern" | head -1 || echo "DEV-123")
-    echo "    ${YELLOW}Correct examples:${NC}"
-    echo "    ${PURPLE}\"$commit_msg, Closes $extracted_task_id\"${NC}"
-    echo "    ${PURPLE}\"$commit_msg, Ref: $extracted_task_id\"${NC}"
-    echo "    ${YELLOW}See: ${NC}${PURPLE}https://linear.app/docs/github?tabs=206cad22125a#link-through-pull-requests${NC}"
-    exit 1
-  fi
-
-  echo "${GREEN}${CHECK} OK${NC}"
 
   # If we reach this point, ALL hooks have passed - show success box
   echo ""

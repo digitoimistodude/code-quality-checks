@@ -25,7 +25,7 @@ trap cleanup EXIT
 # ---------------------------------------------------------------------------
 # Hook scripts must be valid shell
 # ---------------------------------------------------------------------------
-for hook in pre-commit commit-msg; do
+for hook in pre-commit commit-msg skip-checks; do
   if sh -n "$REPO_ROOT/.husky/$hook" 2> /dev/null; then
     pass "$hook is valid shell"
   else

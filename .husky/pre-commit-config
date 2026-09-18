@@ -11,3 +11,8 @@ EXCLUDE_EXTENSIONS=".jpg|.jpeg|.png|.gif|.svg|.ico|.pdf|.zip|.tar|.gz|.woff|.wof
 # Quality checks configuration
 # CHECK_CHANGED_ONLY: true = only check changed files, false = check entire codebase
 CHECK_CHANGED_ONLY=true
+
+# Checks to disable, space or comma separated. Named checks are skipped while
+# the rest keep running, so one blocked check does not cost the whole hook.
+# See README.md for the list of names. Ref: DEV-1565
+SKIP_CHECKS=""

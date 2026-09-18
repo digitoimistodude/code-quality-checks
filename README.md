@@ -16,6 +16,7 @@ Dude's comprehensive code quality definitions and pre-commit hooks for WordPress
 * Merge conflict and scissor mark detection
 * Commit message validation with Linear integration
 * AI attribution rejection in commit messages
+* Individual checks can be disabled without bypassing the rest
 
 ## Installation
 
@@ -98,6 +99,55 @@ git commit --amend
 
 See [the organisation contributing rules](https://github.com/digitoimistodude/.github/blob/master/CONTRIBUTING.md) for the policy this enforces.
 
+## Disabling a single check
+
+One failing check used to cost every check, since `HUSKY=0` is git's only
+escape hatch and it disables the lot. `SKIP_CHECKS` names individual checks
+instead, and everything else keeps running.
+
+For one commit:
+
+```bash
+SKIP_CHECKS="wordpress-version" git commit -m "Fix navigation bug, Ref: DEV-123"
+```
+
+For as long as the reason lasts, in `.husky/pre-commit-config`:
+
+```bash
+SKIP_CHECKS="wordpress-version"
+```
+
+Names are separated by spaces or commas, and the two sources add up rather
+than replacing each other. A skipped check prints `SKIPPED (disabled)` instead
+of disappearing, so a partial run never reads as a clean one, and an unknown
+name is reported rather than silently doing nothing.
+
+### Check names
+
+| Name | What it covers |
+| --- | --- |
+| `required-files` | `.nvmrc`, `phpcs.xml` and `.github/workflows` |
+| `build-system` | Parcel or Gulp config and installation |
+| `changelog` | CHANGELOG.md presence, format, freshness and location |
+| `readme` | README.md first line |
+| `style-css` | Theme `style.css` name, description and version |
+| `wordpress-version` | WordPress version in composer.json against the latest release |
+| `composer-deps` | composer.lock, vendor and lockfile validity |
+| `npm-deps` | package-lock.json and node_modules, root and per theme |
+| `stylelint-config` | Stylelint config present in themes and absent from root |
+| `update-check` | Newer code-quality-checks version on npm |
+| `merge-conflicts` | Merge conflict markers in staged files |
+| `scissors` | Scissor marks in staged files |
+| `phpcs` | PHP CodeSniffer, staged files and whole codebase |
+| `stylelint` | Stylelint on staged SCSS |
+| `php-syntax` | PHP syntax validation |
+| `workflow-syntax` | GitHub Actions workflow YAML |
+| `commit-msg-linear` | Task ID and magic word in the commit message |
+
+`commit-msg-ai-attribution` is deliberately not on the list. It keeps machine
+signatures out of a public history, and a skip flag would put that one word
+away from being bypassed. Naming it prints a notice and the check runs anyway.
+
 ## Configuration
 
 Create `.husky/pre-commit-config` in your project to override defaults:
@@ -114,6 +164,9 @@ EXCLUDE_EXTENSIONS=".jpg|.jpeg|.png|.gif|.svg|.ico|.pdf"
 
 # Check only changed files (true) or entire codebase (false)
 CHECK_CHANGED_ONLY=true
+
+# Checks to disable, space or comma separated
+SKIP_CHECKS=""
 ```
 
 ## Requirements

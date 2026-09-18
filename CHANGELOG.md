@@ -1,3 +1,8 @@
+### 2.4.0: 2026-09-18
+
+* Allow disabling a single check with SKIP_CHECKS, Ref: DEV-1565
+* Add tests for the skip behaviour
+
 ### 2.3.0: 2026-08-27
 
 * Reject AI attribution in commit messages, Ref: DEV-1291

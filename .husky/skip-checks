@@ -1,0 +1,78 @@
+# Shared skip-check helpers for the pre-commit and commit-msg hooks.
+#
+# One failing check used to cost every check, because HUSKY=0 is the only
+# escape hatch git offers and it disables the lot. SKIP_CHECKS names a single
+# check instead, from the environment for a one-off or from
+# .husky/pre-commit-config to hold it for as long as the reason lasts.
+#
+# Ref: DEV-1565
+
+# Checks that may be disabled.
+SKIPPABLE_CHECKS="required-files build-system changelog readme style-css wordpress-version composer-deps npm-deps stylelint-config update-check merge-conflicts scissors phpcs stylelint php-syntax workflow-syntax commit-msg-linear"
+
+# Checks that may not. AI attribution stays enforced because it keeps our
+# public history free of machine signatures, and a skip flag would put that
+# one word away from being bypassed. Ref: DEV-1291
+NON_SKIPPABLE_CHECKS="commit-msg-ai-attribution"
+
+# Resolve the requested skips from the project config and the environment.
+# Both are read, so a persistent entry and a one-off variable add up rather
+# than one silently replacing the other. Commas and spaces both separate.
+_skip_checks_from_config() {
+  for candidate in ".husky/pre-commit-config" "${SCRIPT_DIR:-.}/pre-commit-config"; do
+    if [ -f "$candidate" ]; then
+      sed -n 's/^[[:space:]]*SKIP_CHECKS=["'"'"']\{0,1\}\([^"'"'"']*\)["'"'"']\{0,1\}[[:space:]]*$/\1/p' "$candidate" | tail -1
+      return
+    fi
+  done
+}
+
+# Held under a private name so that sourcing the project config later in the
+# hook cannot clobber the merged value.
+_SKIP_CHECKS=$(printf '%s %s' "$(_skip_checks_from_config)" "${SKIP_CHECKS:-}" | tr ',' ' ' | tr -s ' ' | sed 's/^ *//; s/ *$//')
+
+is_skipped() {
+  case " $_SKIP_CHECKS " in
+    *" $1 "*) return 0 ;;
+  esac
+  return 1
+}
+
+# A skipped check announces itself. Silence would make a partial run look like
+# a clean one, which is the whole failure mode this feature could introduce.
+run_check() {
+  if is_skipped "$1"; then
+    echo "  ${ARROW} $2... ${YELLOW}⏭️  SKIPPED (disabled)${NC}"
+    return 1
+  fi
+  printf "  ${ARROW} $2... "
+  return 0
+}
+
+# Some checks print a label per theme or per file rather than one line, so
+# they are guarded as a group and announce the skip once.
+skip_group() {
+  if is_skipped "$1"; then
+    echo "  ${ARROW} $2... ${YELLOW}⏭️  SKIPPED (disabled)${NC}"
+    return 0
+  fi
+  return 1
+}
+
+# A typo in SKIP_CHECKS reads exactly like a working skip until the check
+# fails anyway, so unknown names are reported rather than ignored.
+warn_unknown_skips() {
+  for requested in $_SKIP_CHECKS; do
+    case " $SKIPPABLE_CHECKS " in
+      *" $requested "*) continue ;;
+    esac
+    case " $NON_SKIPPABLE_CHECKS " in
+      *" $requested "*)
+        echo "${YELLOW}⚠️  '$requested' cannot be disabled, it runs regardless${NC}"
+        continue
+        ;;
+    esac
+    echo "${YELLOW}⚠️  Unknown check '$requested' in SKIP_CHECKS, nothing was skipped for it${NC}"
+    echo "    ${YELLOW}Known checks: $SKIPPABLE_CHECKS${NC}"
+  done
+}
