@@ -126,7 +126,7 @@ name is reported rather than silently doing nothing.
 
 | Name | What it covers |
 | --- | --- |
-| `required-files` | `.nvmrc`, `phpcs.xml` and `.github/workflows` |
+| `required-files` | `.nvmrc` and `phpcs.xml` |
 | `build-system` | Parcel or Gulp config and installation |
 | `changelog` | CHANGELOG.md presence, format, freshness and location |
 | `readme` | README.md first line |

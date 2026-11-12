@@ -1,7 +1,8 @@
-### 2.4.0: 2026-09-18
+### 2.4.0: 2026-11-12
 
 * Allow disabling a single check with SKIP_CHECKS, Ref: DEV-1565
 * Add tests for the skip behaviour
+* Stop requiring a .github/workflows directory, Ref: DEV-335
 
 ### 2.3.0: 2026-08-27
 

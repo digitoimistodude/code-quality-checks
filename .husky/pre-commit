@@ -193,18 +193,6 @@ if [ "$CONTEXT" = "dudestack" ]; then
   fi
 fi
 
-if run_check "required-files" "Checking for .github/workflows directory"; then
-  if [ ! -d ".github/workflows" ]; then
-    echo "${RED}${CROSS} FAILED${NC}"
-    echo "    ${RED}.github/workflows directory is missing${NC}"
-    echo "    ${YELLOW}Please create GitHub workflows directory:${NC}"
-    echo "    ${BLUE}mkdir -p .github/workflows${NC}"
-    echo "    ${YELLOW}And add your CI/CD workflow files${NC}"
-    exit 1
-  fi
-  echo "${GREEN}${CHECK} OK${NC}"
-fi
-
 if ! skip_group "build-system" "Checking build system configuration"; then
   # Detect build system: Parcel or Gulp
   detect_build_system() {
